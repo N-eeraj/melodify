@@ -1,0 +1,48 @@
+{
+    "menuItems": [
+        {
+            "text": "Home",
+            "icon": "home"
+        },
+        {
+            "text": "Artist",
+            "icon": "user"
+        },
+        {
+            "text": "Playlist",
+            "icon": "compact-disc"
+        }
+    ],
+    "songs": [
+        {
+            "id": "000",
+            "name": "Falling",
+            "artist": "Harry Styles",
+            "cover": "https://upload.wikimedia.org/wikipedia/en/b/b1/Harry_Styles_-_Fine_Line.png"
+        },
+        {
+            "id": "001",
+            "name": "As It Was",
+            "artist": "Harry Styles",
+            "cover": "https://s3.amazonaws.com/media.thecrimson.com/photos/2022/04/04/235936_1355516.jpeg"
+        },
+        {
+            "id": "002",
+            "name": "Sign of the Times",
+            "artist": "Harry Styles",
+            "cover": "https://upload.wikimedia.org/wikipedia/en/e/e2/Harry_Styles_-_Sign_of_the_Times_%28Official_Single_Cover%29.png"
+        },
+        {
+            "id": "003",
+            "name": "Golden",
+            "artist": "Harry Styles",
+            "cover": "https://upload.wikimedia.org/wikipedia/en/b/b1/Harry_Styles_-_Fine_Line.png"
+        },
+        {
+            "id": "004",
+            "name": "Adore You",
+            "artist": "Harry Styles",
+            "cover": "https://upload.wikimedia.org/wikipedia/en/b/b1/Harry_Styles_-_Fine_Line.png"
+        }
+    ]
+}
