@@ -3,7 +3,8 @@
 :root {
     --bg-clr: #112;
     --primary: #07F;
-    --secondary: #A0F;
+    --accent: #A0F;
+    --secondary: #FFF;
     --ternary: #FFFA;
 }
 
@@ -23,6 +24,12 @@ body {
 
 a {
     cursor: pointer;
+}
+
+strong, span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 nav {
@@ -46,7 +53,7 @@ nav ul {
     height: 12vh;
     padding-top: 2vh;
     background-color: var(--bg-clr);
-    color: var(--primary);
+    color: var(--secondary);
     list-style-type: none;
     animation: changeShadow 4s infinite ease-in-out;
     z-index: 3;
@@ -61,7 +68,7 @@ nav li {
     height: 100%;
 }
 .nav-li-selected {
-    color: var(--secondary);
+    color: var(--primary);
 }
 nav li:first-of-type {
     order: 1;
@@ -192,8 +199,21 @@ nav i {
 }
 .music-player #current_playing .details strong {
     font-size: 2rem;
-    color: #FFF;
+    color: var(--secondary);
 }
+.music-player #current_playing progress {
+    width: 100%;
+    margin-top: 10px;
+}
+.music-player #current_playing progress::-webkit-progress-bar {
+    background-color: var(--secondary);
+    border-radius: 20px;
+}
+.music-player #current_playing progress::-webkit-progress-value {
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    border-radius: 20px;
+}
+
 .music-player .controls {
     display: flex;
     justify-content: space-evenly;
@@ -354,7 +374,90 @@ nav i {
         display: none;
     }
     .landscape-music-player {
+        position: fixed;
+        bottom: 0;
         display: block;
+        width: 100%;
+        height: 15vh;
+        background-color: red;
+        animation: changeShadow 4s infinite ease-in-out;
+    }
+    .landscape-music-player .music-player {
+        display: flex !important;
+        flex-direction: row;
+        justify-content: space-around;
+        align-items: center;
+        height: 100%;
+        width: 100%;
+        padding: 0 5%;
+    }
+    .landscape-music-player .music-player > .fa-xmark {
+        display: none;
+    }
+    .landscape-music-player .music-player #current_playing {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+        align-items: center;
+        width: 60%;
+        height: 100%;
+    }
+    .landscape-music-player .music-player #current_playing img {
+        width: 12vh;
+        height: 12vh;
+    }
+    .landscape-music-player .music-player #current_playing .details {
+        justify-content: space-around;
+        row-gap: 5px;
+        margin-top: 0;
+        font-size: 0.8rem;
+    }
+    .landscape-music-player .music-player #current_playing .details strong {
+        font-size: 1.3rem;
+    }
+    .landscape-music-player .music-player #current_playing progress {
+        width: 50%;
+        height: 10px;
+    }
+    .landscape-music-player .music-player .controls {
+        column-gap: 10px;
+        margin-top: 0;
+        font-size: 2rem;
+    }
+    .landscape-music-player .music-player .fa-list {
+        font-size: 1.8rem;
+    }
+    .landscape-music-player .music-player .queue {
+        display: none;
+    }
+    .landscape-music-player .music-player .landscape-queue {
+        position: fixed;
+        bottom: 15vh;
+        right: 5vw;
+        display: flex;
+        row-gap: 15px;
+        width: max(25%, 250px);
+        max-height: 60vh;
+        padding: 10px 0;
+        background-color: #000D;
+        overflow-y: scroll;
+    }
+    .landscape-music-player .music-player .landscape-queue .song {
+        justify-content: space-evenly;
+    }
+    .landscape-music-player .music-player .landscape-queue .song img {
+        width: 50px;
+        height: 50px;
+    }
+    .landscape-music-player .music-player .landscape-queue .song .details {
+        width: 50%;
+        font-size: 0.7rem;
+    }
+    .landscape-music-player .music-player .landscape-queue .song .details strong {
+        font-size: 0.9rem;
+    }
+    .landscape-music-player .music-player .landscape-queue .song button {
+        font-size: 0.6rem;
     }
 
 }
@@ -368,7 +471,7 @@ nav i {
         background-color: var(--primary);
     }
     ::-webkit-scrollbar-thumb:hover {
-        background-color: var(--secondary);
+        background-color: var(--accent);
     }
 }
 
@@ -378,7 +481,7 @@ nav i {
         color: var(--primary);
     }
     50% {
-        color: var(--secondary);
+        color: var(--accent);
     }
     100% {
         color: var(--primary);
@@ -387,20 +490,20 @@ nav i {
 
 @keyframes changeShadow {
     0% {
-        box-shadow: 0 0 5px var(--secondary);
+        box-shadow: 0 0 5px var(--accent);
     }
     50% {
         box-shadow: 0 0 12px var(--primary);
     }
     100% {
-        box-shadow: 0 0 5px var(--secondary);
+        box-shadow: 0 0 5px var(--accent);
     }
 }
 
 @keyframes load {
     50% {
         transform: scaleY(0.5);
-        background-color: var(--secondary);
+        background-color: var(--accent);
     }
     100% {
         transform: scaleY(1);
