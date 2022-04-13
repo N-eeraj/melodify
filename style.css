@@ -22,7 +22,7 @@ body {
     padding-bottom: 10vh;
 }
 
-a {
+a, .fa-solid {
     cursor: pointer;
 }
 
@@ -80,11 +80,11 @@ nav i {
     font-size: 1.5rem;
 }
 
-.songs {
+.main-container {
     padding: 3% 0;
 }
 
-.songs h2 {
+.main-h2 {
     padding-left: 5%;
     color: var(--primary);
 }
@@ -124,21 +124,19 @@ nav i {
     align-items: center;
     margin-top: 10px;
 }
-.song-card > div > div {
+.song-card .details {
     display: flex;
     flex-direction: column;
     justify-content: space-around;
     row-gap: 5px;
+    width: 100%;
     padding-left: 5px;
-}
-.song-card .fa-solid {
-    cursor: pointer;
 }
 .song-card > .fa-solid {
     position: absolute;
     top: 50%;
     right: 0;
-    background-color: var(--bg-clr);
+    background-color: var(--secondary);
     border-radius: 100%;
     font-size: 3rem;
     color: var(--primary);

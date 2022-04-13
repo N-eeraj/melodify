@@ -7,14 +7,19 @@ const app = Vue.createApp({
             fetchedData: {},
             playerCurrent: {
                 nowPlaying: 0,
-                playing: false,          
-                queue: []
+                playing: false,         
+                queue: [],
+                time: {
+                    now: 0,
+                    end: 0
+                }
             },
             playlists: [],
             isLoading: true,
+            audio: null
         }
     },
-    beforeCreate() {
+    mounted() {
         fetch("http://localhost:5500/data.json")
         .then(response => response.json())
         .then(data => {
@@ -25,24 +30,46 @@ const app = Vue.createApp({
             fetchedData.songs.forEach(song => {
                 this.songDetailsList.push(song)
             })
-            for (let i=0; i<5; i++)
-                this.playerCurrent.queue.push(fetchedData.songs[i])
-            this.playerCurrent.nowPlaying = 0
         })
     },
     methods: {
         selectTab(tab) {
             this.tab = tab
         },
+        getAudio() {
+            let current = this.playerCurrent
+            let currentAudio = current.queue[current.nowPlaying].audio
+            if (this.audio === null)
+                this.audio = new Audio(currentAudio)
+            else if(this.audio.src !== currentAudio)
+                this.audio.src = currentAudio
+            else
+                return
+            this.audio.addEventListener("timeupdate", (e) => {
+                this.playerCurrent.time.now = e.srcElement.currentTime
+                let duration = e.srcElement.duration
+                if (!isNaN(duration))
+                    this.playerCurrent.time.end = duration
+                if (e.srcElement.ended)
+                    this.playNextSong()
+            })
+        },
         togglePlayState(play=false) {
             if (play)
-                return this.playerCurrent.playing = true
-            this.playerCurrent.playing = !this.playerCurrent.playing
+                this.playerCurrent.playing = true
+            else
+                this.playerCurrent.playing = !this.playerCurrent.playing
+            if (this.playerCurrent.playing) {
+                this.getAudio()
+                this.audio.play()
+            }
+            else 
+                this.audio.pause()
         },
         startSong(id) {
             this.playerCurrent.nowPlaying = 0
             this.playerCurrent.queue = [this.songDetailsList.filter(song => song.id === id)[0]]
-            this.playerCurrent.playing = true
+            this.togglePlayState(true)
         },
         playNext(id){
             let song = this.songDetailsList.filter(song => song.id === id)[0]
@@ -66,13 +93,20 @@ const app = Vue.createApp({
                 ++this.playerCurrent.nowPlaying
                 this.togglePlayState(true)
             }
+        },
+        changeQueueIndex(index) {
+            console.log("Change Index")
+            this.playerCurrent.nowPlaying = index
+            this.togglePlayState(true)
         }
     },
     template: `
         <navbar :selected="tab" :items="menuItems" @changeTab="selectTab" />
         <songs v-if="tab==='Home'" :songList="songDetailsList" @songSelected="startSong" @addSongToQueue="addToQueue" @playSongNext="playNext" />
-        <music-player :miniPlayer="true" :playerData="playerCurrent" @changePlayState="togglePlayState" @removeFromQueue="deleteFromQueue" @prevSong="playPreviousSong" @nextSong="playNextSong" />
-        <music-player :playerData="playerCurrent" @changePlayState="togglePlayState" @removeFromQueue="deleteFromQueue" @prevSong="playPreviousSong" @nextSong="playNextSong" />
+        <artists v-else-if="tab==='Artist'" />
+        <playlists v-else />
+        <music-player :miniPlayer="true" :playerData="playerCurrent" @changePlayState="togglePlayState" @removeFromQueue="deleteFromQueue" @prevSong="playPreviousSong" @nextSong="playNextSong" @changeSong="changeQueueIndex" :songTimes="playerCurrent.time" />
+        <music-player :playerData="playerCurrent" @changePlayState="togglePlayState" @removeFromQueue="deleteFromQueue" @prevSong="playPreviousSong" @nextSong="playNextSong" @changeSong="changeQueueIndex" :songTimes="playerCurrent.time" />
         <loading v-if="isLoading" />
     `
 })
@@ -82,7 +116,7 @@ app.component("navbar", {
     props: ["selected", "items"],
     template: `
         <nav>
-            <h1>Songify</h1>
+            <h1>Melodify</h1>
             <ul>
                 <nav-item v-for="item in items" :navItem="item" :class="(selected===item.text)?'nav-li-selected':''" @click="this.$emit('changeTab', item.text)" />
             </ul>
@@ -116,8 +150,8 @@ app.component("songs", {
     },
     props: ["songList"],
     template: `
-        <div class="songs">
-            <h2>Songs</h2>
+        <div class="songs main-container">
+            <h2 class="main-h2">Songs</h2>
             <div class="song-list">
                 <song v-for="song in songList" :songDetails="song" :isSelectedSong="selectedSong === song.id" @openMenu="showMenu" @playSong="id => this.$emit('songSelected', id)" @addToQueue="id => this.$emit('addSongToQueue', id)" @playNext="id => this.$emit('playSongNext', id)" />
             </div>
@@ -179,7 +213,7 @@ app.component("music-player", {
             this.showPlayer = !this.showPlayer
         }
     },
-    props: ["playerData", "miniPlayer"],
+    props: ["playerData", "miniPlayer", "songTimes"],
     template: `
         <div :class="miniPlayer?'portrait-music-player':'landscape-music-player'" v-if="playerData.queue[playerData.nowPlaying]">
             <div class="music-player" v-show="showPlayer">
@@ -187,7 +221,7 @@ app.component("music-player", {
                 <div id="current_playing">
                     <img :src="playerData.queue[playerData.nowPlaying].cover" :alt="playerData.queue[playerData.nowPlaying].name">
                     <songDetails :songName="playerData.queue[playerData.nowPlaying].name" :artistName="playerData.queue[playerData.nowPlaying].artist" />
-                    <progress value="50" max="100"></progress>
+                    <progress :value="songTimes.now" :max="songTimes.end"></progress>
                 </div>
                 <div class="controls">
                     <i class="fa-solid fa-backward-step" @click="this.$emit('prevSong')"></i>
@@ -197,7 +231,7 @@ app.component("music-player", {
                 <i class="fa-solid fa-list" v-if="!miniPlayer" @click="landscapeQueue = !landscapeQueue"></i>
                 <div class="queue" :class="landscapeQueue?'landscape-queue':''">
                     <template v-for="(queueItem, index) in playerData.queue">
-                        <div class="song" v-show="index > playerData.nowPlaying">
+                        <div class="song" v-show="index > playerData.nowPlaying" @click.self="this.$emit('changeSong', index)">
                             <img :src="queueItem.cover" :alt="queueItem.name">
                             <songDetails :songName="queueItem.name" :artistName="queueItem.artist" />
                             <button @click="this.$emit('removeFromQueue', index)"><i class="fa-solid fa-xmark"></i></button>
@@ -229,6 +263,21 @@ app.component("mini-music-player", {
     `
 })
 
+app.component("artists", {
+    template: `
+        <div class="artists main-container">
+            <h2 class="main-h2">Artists</h2>
+        </div>
+    `
+})
+
+app.component("playlists", {
+    template: `
+        <div class="playlists main-container">
+            <h2 class="main-h2">Playlist</h2>
+        </div>
+    `
+})
 
 app.component("songDetails", {
     props:["songName", "artistName"],
