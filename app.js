@@ -20,7 +20,7 @@ const app = Vue.createApp({
         }
     },
     mounted() {
-        fetch("http://localhost:5500/data.json")
+        fetch("https://N-eeraj.github.io/melodify/data.json")
         .then(response => response.json())
         .then(data => {
             let fetchedData = this.fetchedData
