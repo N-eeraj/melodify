@@ -25,7 +25,7 @@ const app = Vue.createApp({
         }
     },
     mounted() {
-        fetch("/data.json")
+        fetch(baseURL + "/data.json")
         .then(response => response.json())
         .then(data => {
             let fetchedData = data
