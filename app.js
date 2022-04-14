@@ -1,5 +1,5 @@
-const baseURL = "https://n-eeraj.github.io/melodify"
-// const baseURL = "http://127.0.0.1:5500"
+const baseURL = "https://n-eeraj.github.io/melodify/"
+// const baseURL = "http://127.0.0.1:5500/"
 
 const app = Vue.createApp({
     data() {
@@ -57,6 +57,8 @@ const app = Vue.createApp({
                 this.audio.src = currentAudio
             else
                 return
+            console.log(baseURL + currentAudio)
+            console.log(this.audio.src)
             this.audio.addEventListener("timeupdate", (e) => {
                 this.playerCurrent.time.now = e.srcElement.currentTime
                 let duration = e.srcElement.duration
