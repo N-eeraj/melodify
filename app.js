@@ -20,7 +20,7 @@ const app = Vue.createApp({
         }
     },
     mounted() {
-        fetch("https://N-eeraj.github.io/melodify/data.json")
+        fetch("https://n-eeraj.github.io/melodify/data.json")
         .then(response => response.json())
         .then(data => {
             let fetchedData = this.fetchedData
@@ -95,7 +95,6 @@ const app = Vue.createApp({
             }
         },
         changeQueueIndex(index) {
-            console.log("Change Index")
             this.playerCurrent.nowPlaying = index
             this.togglePlayState(true)
         }
@@ -231,10 +230,10 @@ app.component("music-player", {
                 <i class="fa-solid fa-list" v-if="!miniPlayer" @click="landscapeQueue = !landscapeQueue"></i>
                 <div class="queue" :class="landscapeQueue?'landscape-queue':''">
                     <template v-for="(queueItem, index) in playerData.queue">
-                        <div class="song" v-show="index > playerData.nowPlaying" @click.self="this.$emit('changeSong', index)">
+                        <div class="song" v-show="index > playerData.nowPlaying" @click="this.$emit('changeSong', index)">
                             <img :src="queueItem.cover" :alt="queueItem.name">
                             <songDetails :songName="queueItem.name" :artistName="queueItem.artist" />
-                            <button @click="this.$emit('removeFromQueue', index)"><i class="fa-solid fa-xmark"></i></button>
+                            <button @click.stop="this.$emit('removeFromQueue', index)"><i class="fa-solid fa-xmark"></i></button>
                         </div>
                     </template>
                 </div>
