@@ -1,10 +1,14 @@
+const baseURL = "https://n-eeraj.github.io/melodify"
+// const baseURL = "http://127.0.0.1:5500"
+
 const app = Vue.createApp({
     data() {
         return {
             tab: "Home",
             menuItems: [],
+            fetchedSongs: [],
             songDetailsList: [],
-            fetchedData: {},
+            artistsList: [],
             playerCurrent: {
                 nowPlaying: 0,
                 playing: false,         
@@ -14,26 +18,34 @@ const app = Vue.createApp({
                     end: 0
                 }
             },
+            audio: null,
+            currentArtist: null,
             playlists: [],
-            isLoading: true,
-            audio: null
+            isLoading: true
         }
     },
     mounted() {
-        fetch("https://n-eeraj.github.io/melodify/data.json")
+        fetch("/data.json")
         .then(response => response.json())
         .then(data => {
-            let fetchedData = this.fetchedData
-            this.isLoading = false
-            fetchedData = data
+            let fetchedData = data
             this.menuItems = fetchedData.menuItems
-            fetchedData.songs.forEach(song => {
-                this.songDetailsList.push(song)
+            this.fetchedSongs = fetchedData.songs
+            this.songDetailsList = this.fetchedSongs
+            for (let [name, image] of Object.entries(fetchedData.artists))
+            this.artistsList.push({
+                name : name,
+                image : image
             })
+            this.isLoading = false
         })
     },
     methods: {
         selectTab(tab) {
+            if (tab === "Home") {
+                this.currentArtist = null
+                this.songDetailsList = this.fetchedSongs
+            }
             this.tab = tab
         },
         getAudio() {
@@ -41,22 +53,26 @@ const app = Vue.createApp({
             let currentAudio = current.queue[current.nowPlaying].audio
             if (this.audio === null)
                 this.audio = new Audio(currentAudio)
-            else if(this.audio.src !== currentAudio)
+            else if(this.audio.src !== baseURL + currentAudio)
                 this.audio.src = currentAudio
             else
                 return
             this.audio.addEventListener("timeupdate", (e) => {
                 this.playerCurrent.time.now = e.srcElement.currentTime
                 let duration = e.srcElement.duration
+                if (e.srcElement.paused)
+                    this.togglePlayState(false)
                 if (!isNaN(duration))
                     this.playerCurrent.time.end = duration
                 if (e.srcElement.ended)
                     this.playNextSong()
             })
         },
-        togglePlayState(play=false) {
+        togglePlayState(play=null) {
             if (play)
                 this.playerCurrent.playing = true
+            else if (play === false)
+                this.playerCurrent.playing = false
             else
                 this.playerCurrent.playing = !this.playerCurrent.playing
             if (this.playerCurrent.playing) {
@@ -97,12 +113,17 @@ const app = Vue.createApp({
         changeQueueIndex(index) {
             this.playerCurrent.nowPlaying = index
             this.togglePlayState(true)
+        },
+        showArtistSongs(artist) {
+            this.songDetailsList = this.fetchedSongs.filter(song => song.artist.split(", ").includes(artist))
+            this.tab = "Home"
+            this.currentArtist = artist
         }
     },
     template: `
         <navbar :selected="tab" :items="menuItems" @changeTab="selectTab" />
-        <songs v-if="tab==='Home'" :songList="songDetailsList" @songSelected="startSong" @addSongToQueue="addToQueue" @playSongNext="playNext" />
-        <artists v-else-if="tab==='Artist'" />
+        <songs v-if="tab==='Home'" :songList="songDetailsList" :artist="currentArtist" @songSelected="startSong" @addSongToQueue="addToQueue" @playSongNext="playNext" />
+        <artists v-else-if="tab==='Artist'" :artristList="artistsList" @selectArtist="showArtistSongs" />
         <playlists v-else />
         <music-player :miniPlayer="true" :playerData="playerCurrent" @changePlayState="togglePlayState" @removeFromQueue="deleteFromQueue" @prevSong="playPreviousSong" @nextSong="playNextSong" @changeSong="changeQueueIndex" :songTimes="playerCurrent.time" />
         <music-player :playerData="playerCurrent" @changePlayState="togglePlayState" @removeFromQueue="deleteFromQueue" @prevSong="playPreviousSong" @nextSong="playNextSong" @changeSong="changeQueueIndex" :songTimes="playerCurrent.time" />
@@ -147,11 +168,14 @@ app.component("songs", {
             this.selectedSong = song
         }
     },
-    props: ["songList"],
+    props: ["songList", "artist"],
     template: `
         <div class="songs main-container">
-            <h2 class="main-h2">Songs</h2>
-            <div class="song-list">
+            <h2 class="main-h2">
+                Songs
+                <template v-if="artist !== null">by {{artist}}</template>
+            </h2>
+            <div class="list-container song-list">
                 <song v-for="song in songList" :songDetails="song" :isSelectedSong="selectedSong === song.id" @openMenu="showMenu" @playSong="id => this.$emit('songSelected', id)" @addToQueue="id => this.$emit('addSongToQueue', id)" @playNext="id => this.$emit('playSongNext', id)" />
             </div>
         </div>
@@ -263,9 +287,16 @@ app.component("mini-music-player", {
 })
 
 app.component("artists", {
+    props: ["artristList"],
     template: `
         <div class="artists main-container">
             <h2 class="main-h2">Artists</h2>
+            <div class="list-container artists-list">
+                <div v-for="artist in artristList" class="artist-card" @click="this.$emit('selectArtist', artist.name)" >
+                    <img :src="artist.image" :alt="artist.name">
+                    <h3>{{artist.name}}</h3>
+                </div>
+            </div>
         </div>
     `
 })

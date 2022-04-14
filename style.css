@@ -89,27 +89,33 @@ nav i {
     color: var(--primary);
 }
 
-.song-list {
+.list-container {
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
-    row-gap: 7vh;
     height: 55vh;
     margin-top: 3vmin;
     padding: 5vmin 5vmin 15vmin 5vmin;
     overflow-y: scroll;
 }
 
-.song-card {
+.song-list {
+    row-gap: 7vh;
+}
+
+.song-card, .artist-card {
     position: relative;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     row-gap: 10px;
     width: 42%;
+    color: var(--ternary);
+}
+
+.song-card {
     aspect-ratio: 0.65;
     padding-bottom: 1%;
-    color: var(--ternary);
 }
 
 .song-card img {
@@ -260,7 +266,7 @@ nav i {
     height: 10vh;
     background-color: var(--bg-clr);
     color: var(--ternary);
-    animation: changeShadow 4s infinite ease-in-out;
+    animation: changeShadow 1s infinite ease-in-out;
     z-index: 2;
 }
 .mini-music-player > * {
@@ -282,6 +288,28 @@ nav i {
     background-color: transparent;
     font-size: 2rem;
     color: var(--primary);
+}
+
+.artists-list {
+    row-gap: 5vh;
+}
+
+.artist-card {
+    aspect-ratio: 1;
+    align-items: center;
+}
+
+.artist-card img {
+    width: 90%;
+    aspect-ratio: 1;
+    padding: 7px;
+    border: 3px solid;
+    border-radius: 100%;
+    animation: changeBorder 4s infinite linear;
+}
+.artist-card h3 {
+    margin-top: 10px;
+    text-align: center;
 }
 
 .loader {
@@ -356,11 +384,13 @@ nav i {
         order: 0;
     }
     
-    .song-list {
-        gap: 10vh 5vw;
+    .list-container {
         padding: 5% 10%;
     }
-    .song-card {
+    .song-list {
+        gap: 10vh 5vw;
+    }
+    .song-card, .artist-card {
         width: 150px;
     }
     .song-options {
@@ -495,6 +525,27 @@ nav i {
     }
     100% {
         box-shadow: 0 0 5px var(--accent);
+    }
+}
+
+@keyframes changeBorder {
+    0% {
+        border-top-color: var(--primary);
+        border-right-color: var(--accent);
+        border-bottom-color: var(--primary);
+        border-left-color: var(--accent);
+    }
+    50% {
+        border-top-color: var(--accent);
+        border-right-color: var(--primary);
+        border-bottom-color: var(--accent);
+        border-left-color: var(--primary);
+    }
+    100% {
+        border-top-color: var(--primary);
+        border-right-color: var(--accent);
+        border-bottom-color: var(--primary);
+        border-left-color: var(--accent);
     }
 }
 
